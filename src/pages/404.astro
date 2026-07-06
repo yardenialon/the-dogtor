@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Page not found" noindex>
+  <section class="section" style="text-align:center">
+    <div class="container">
+      <div style="font-size:5rem" aria-hidden="true">🐾</div>
+      <h1 style="font-size:clamp(2rem,5vw,3rem);margin:.5rem 0">This page wandered off</h1>
+      <p class="lede" style="max-width:46ch;margin:0 auto 1.6rem">
+        We couldn't find that page. Let's get you back to something useful.
+      </p>
+      <div style="display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap">
+        <a href="/" class="btn btn-primary">Home</a>
+        <a href="/articles" class="btn btn-ghost">All articles</a>
+        <a href="/emergencies" class="btn btn-ghost">Emergency guide</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

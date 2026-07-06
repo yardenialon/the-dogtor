@@ -1,0 +1,49 @@
+---
+/**
+ * Renders an on-page FAQ accordion. The SAME data feeds FAQPage JSON-LD
+ * (emitted from the article layout) — this is a high-value GEO/SEO pattern:
+ * Q&A blocks are the format most often lifted into AI answers and rich results.
+ */
+interface Props {
+  items: { question: string; answer: string }[];
+  heading?: string;
+}
+const { items, heading = 'Frequently asked questions' } = Astro.props;
+---
+
+{items.length > 0 && (
+  <section class="faq" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">{heading}</h2>
+    <div class="faq-list">
+      {items.map((item) => (
+        <details class="faq-item">
+          <summary>
+            <span>{item.question}</span>
+            <span class="faq-chevron" aria-hidden="true">+</span>
+          </summary>
+          <div class="faq-answer" set:html={item.answer} />
+        </details>
+      ))}
+    </div>
+  </section>
+)}
+
+<style>
+  .faq { margin: 2.5rem 0; }
+  .faq > h2 { margin-bottom: 1rem; }
+  .faq-item {
+    border: 1px solid var(--line); border-radius: var(--r);
+    background: var(--surface); margin-bottom: .7rem; overflow: hidden;
+  }
+  .faq-item[open] { border-color: var(--line-2); box-shadow: var(--shadow-sm); }
+  summary {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    padding: 1rem 1.15rem; cursor: pointer; font-weight: 600; list-style: none;
+    color: var(--text);
+  }
+  summary::-webkit-details-marker { display: none; }
+  .faq-chevron { font-size: 1.4rem; color: var(--brand); transition: transform .2s; flex: none; line-height: 1; }
+  .faq-item[open] .faq-chevron { transform: rotate(45deg); }
+  .faq-answer { padding: 0 1.15rem 1.1rem; color: var(--ink-soft); }
+  .faq-answer :global(p) { margin: 0 0 .6rem; }
+</style>

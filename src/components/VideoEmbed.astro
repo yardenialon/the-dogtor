@@ -1,0 +1,57 @@
+---
+/**
+ * Lightweight YouTube "facade": shows the thumbnail + play button and only
+ * loads the heavy iframe on click. Keeps Core Web Vitals fast (no third-party
+ * JS on load) while still driving clicks to the channel.
+ */
+interface Props {
+  id: string;
+  title: string;
+}
+const { id, title } = Astro.props;
+const thumb = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+const watchUrl = `https://www.youtube.com/watch?v=${id}`;
+---
+
+<div class="yt-facade" data-yt-id={id} data-title={title}>
+  <button type="button" class="yt-btn" aria-label={`Play video: ${title}`}>
+    <img src={thumb} alt={`Thumbnail for ${title}`} loading="lazy" width="480" height="360" />
+    <span class="yt-play" aria-hidden="true">
+      <svg viewBox="0 0 68 48" width="68" height="48"><path d="M66.5 7.5a8 8 0 0 0-5.6-5.7C56 .5 34 .5 34 .5s-22 0-26.9 1.3A8 8 0 0 0 1.5 7.5C.2 12.4.2 24 .2 24s0 11.6 1.3 16.5a8 8 0 0 0 5.6 5.7C12 47.5 34 47.5 34 47.5s22 0 26.9-1.3a8 8 0 0 0 5.6-5.7C67.8 35.6 67.8 24 67.8 24s0-11.6-1.3-16.5Z" fill="#f00"/><path d="M27 34l18-10-18-10v20Z" fill="#fff"/></svg>
+    </span>
+  </button>
+  <noscript>
+    <a href={watchUrl} target="_blank" rel="noopener">Watch "{title}" on YouTube</a>
+  </noscript>
+</div>
+
+<style>
+  .yt-facade {
+    position: relative; aspect-ratio: 16 / 9; border-radius: var(--r-lg);
+    overflow: hidden; background: #000; box-shadow: var(--shadow);
+    border: 1px solid var(--line);
+  }
+  .yt-btn { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; cursor: pointer; background: #000; }
+  .yt-btn img { width: 100%; height: 100%; object-fit: cover; opacity: .92; transition: opacity .2s, transform .3s; }
+  .yt-btn:hover img { opacity: 1; transform: scale(1.03); }
+  .yt-play { position: absolute; inset: 0; display: grid; place-items: center; }
+  .yt-play svg { filter: drop-shadow(0 2px 8px rgba(0,0,0,.4)); transition: transform .2s; }
+  .yt-btn:hover .yt-play svg { transform: scale(1.08); }
+  .yt-facade :global(iframe) { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.yt-facade').forEach((el) => {
+    const btn = el.querySelector('.yt-btn');
+    btn?.addEventListener('click', () => {
+      const id = el.dataset.ytId;
+      const title = el.dataset.title ?? '';
+      const iframe = document.createElement('iframe');
+      iframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`;
+      iframe.title = title;
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+      iframe.allowFullscreen = true;
+      el.replaceChildren(iframe);
+    });
+  });
+</script>

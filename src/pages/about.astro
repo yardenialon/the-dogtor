@@ -1,0 +1,95 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { SITE, SITE_URL, YOUTUBE } from '../consts';
+
+// AboutPage + Organization(MedicalOrganization) schema — strong E-E-A-T signal.
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'AboutPage',
+  name: `About ${SITE.name}`,
+  url: new URL('/about', SITE_URL).href,
+  mainEntity: {
+    '@type': 'MedicalOrganization',
+    name: SITE.name,
+    url: SITE_URL,
+    description: SITE.shortDescription,
+    sameAs: [YOUTUBE.channelUrl],
+  },
+};
+
+const values = [
+  { icon: '🎓', title: 'Written by veterinarians', text: 'Every article is authored and medically reviewed by certified, practicing vets — not generic content writers.' },
+  { icon: '🔬', title: 'Evidence-based', text: 'We ground explanations in current veterinary literature and real clinical case experience, and cite our sources.' },
+  { icon: '💬', title: 'Actually understandable', text: 'We translate complex medicine — GDV, IMHA, diabetes — into plain language you can act on.' },
+  { icon: '⏱️', title: 'Know when it matters', text: 'The goal is early recognition: helping you tell "watch and wait" from "call the vet now".' },
+];
+---
+
+<BaseLayout
+  title="About The Dogtor"
+  description="The Dogtor is a veterinary education project led by certified veterinarians, making pet health easier to understand for owners and clearer for veterinary students."
+  jsonLd={schema}
+>
+  <section class="section">
+    <div class="container prose-container">
+      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'About' }]} />
+      <span class="eyebrow">About</span>
+      <h1>Making pet health easier to understand</h1>
+      <p class="lede">
+        The Dogtor is a veterinary education project led by certified veterinarians. We explain common
+        diseases, warning signs, emergency symptoms and treatments in dogs, cats, rabbits and other small
+        animals — so pet owners can recognise problems early and feel confident about their care.
+      </p>
+
+      <div class="values">
+        {values.map((v) => (
+          <div class="value">
+            <span class="value-icon" aria-hidden="true">{v.icon}</span>
+            <div>
+              <h3>{v.title}</h3>
+              <p>{v.text}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <h2>Who it's for</h2>
+      <p>
+        For <strong>pet owners</strong>, we help you recognise problems early, know when to contact a vet,
+        and feel more confident caring for your pet. For <strong>veterinary students</strong>, we give clear,
+        practical explanations of real clinical cases — from vomiting, diabetes, ear infections and skin
+        allergies to life-threatening emergencies like GDV, IMHA and poisoning.
+      </p>
+
+      <h2>Our editorial standards</h2>
+      <p>
+        Articles are written by veterinarians, reviewed for medical accuracy, dated, and updated as guidance
+        evolves. We cite reputable veterinary sources where relevant. Content is educational and is
+        <strong> not a substitute for a hands-on examination</strong> by your own veterinarian.
+      </p>
+
+      <div class="about-cta">
+        <div>
+          <h2 style="margin:0">Watch and learn</h2>
+          <p style="margin:.4rem 0 0">Every guide has a companion video on our channel.</p>
+        </div>
+        <a href={YOUTUBE.subscribeUrl} class="btn btn-yt btn-lg" target="_blank" rel="noopener">▶ Subscribe on YouTube</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  h1 { font-size: clamp(2rem, 4.5vw, 3rem); margin: .5rem 0 .9rem; }
+  h2 { font-size: clamp(1.4rem, 3vw, 1.9rem); margin: 2.2rem 0 .7rem; }
+  p { color: var(--ink-soft); margin-bottom: 1rem; line-height: 1.75; }
+  .values { display: grid; gap: 1rem; grid-template-columns: 1fr 1fr; margin: 2rem 0; }
+  @media (max-width: 620px) { .values { grid-template-columns: 1fr; } }
+  .value { display: flex; gap: .9rem; align-items: flex-start; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 1.2rem; }
+  .value-icon { font-size: 1.7rem; flex: none; }
+  .value h3 { font-size: 1.08rem; margin-bottom: .3rem; }
+  .value p { font-size: .92rem; color: var(--text-muted); margin: 0; }
+  .about-cta { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between; background: var(--teal-900); color: #eafaf7; border-radius: var(--r-xl); padding: 1.6rem 1.8rem; margin-top: 2.5rem; }
+  .about-cta h2, .about-cta p { color: #eafaf7; }
+</style>

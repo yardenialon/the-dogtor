@@ -1,0 +1,30 @@
+---
+import { getCollection, render } from 'astro:content';
+import ArticleLayout from '../../layouts/ArticleLayout.astro';
+
+export async function getStaticPaths() {
+  const articles = await getCollection('articles', ({ data }) => !data.draft);
+  return articles.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry, all: articles },
+  }));
+}
+
+const { entry, all } = Astro.props;
+const { Content, headings } = await render(entry);
+
+// Related: prefer same species, then fill with same category, exclude self.
+const related = all
+  .filter((a) => a.id !== entry.id)
+  .sort((a, b) => {
+    const score = (x: typeof entry) =>
+      (x.data.species === entry.data.species ? 2 : 0) +
+      (x.data.category === entry.data.category ? 1 : 0);
+    return score(b) - score(a);
+  })
+  .slice(0, 3);
+---
+
+<ArticleLayout entry={entry} related={related} headings={headings}>
+  <Content />
+</ArticleLayout>

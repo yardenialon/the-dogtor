@@ -1,0 +1,107 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { SPECIES, SITE_URL, YOUTUBE } from '../../consts';
+
+export async function getStaticPaths() {
+  return SPECIES.map((s) => ({ params: { species: s.slug }, props: { species: s } }));
+}
+
+const { species } = Astro.props;
+const articles = (
+  await getCollection('articles', ({ data }) => !data.draft && data.species === species.slug)
+).sort((a, b) => b.data.publishedDate.valueOf() - a.data.publishedDate.valueOf());
+
+// Group into topic clusters by category.
+const byCategory = new Map<string, typeof articles>();
+for (const a of articles) {
+  const list = byCategory.get(a.data.category) ?? [];
+  list.push(a);
+  byCategory.set(a.data.category, list);
+}
+const categories = [...byCategory.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+
+const pageUrl = new URL(`/species/${species.slug}`, SITE_URL).href;
+const collectionSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: `${species.name} health guides`,
+  url: pageUrl,
+  description: `Vet-reviewed ${species.name.toLowerCase()} health articles from The Dogtor.`,
+  isPartOf: { '@type': 'WebSite', url: SITE_URL },
+  hasPart: articles.slice(0, 20).map((a) => ({
+    '@type': 'MedicalWebPage',
+    name: a.data.title,
+    url: new URL(`/articles/${a.id}`, SITE_URL).href,
+  })),
+};
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+    { '@type': 'ListItem', position: 2, name: species.name, item: pageUrl },
+  ],
+};
+---
+
+<BaseLayout
+  title={`${species.name} Health Guides`}
+  description={`Vet-reviewed ${species.name.toLowerCase()} health guides: symptoms, diseases, emergencies and treatments explained by certified veterinarians.`}
+  jsonLd={[collectionSchema, breadcrumbSchema]}
+>
+  <section class="pillar-hero">
+    <div class="container">
+      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: species.name }]} />
+      <div class="pillar-hero-inner">
+        <span class="pillar-emoji" aria-hidden="true">{species.emoji}</span>
+        <div>
+          <h1>{species.name} health</h1>
+          <p class="lede">{species.blurb}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      {articles.length === 0 ? (
+        <p class="empty">
+          New {species.name.toLowerCase()} guides are coming soon.
+          Meanwhile, <a href={YOUTUBE.channelUrl} target="_blank" rel="noopener">watch on YouTube</a>.
+        </p>
+      ) : (
+        categories.map(([category, list]) => (
+          <div class="cluster">
+            <h2 class="cluster-title">{category}</h2>
+            <div class="grid grid-3">
+              {list.map((a) => (
+                <ArticleCard
+                  slug={a.id}
+                  title={a.data.title}
+                  summary={a.data.summary}
+                  species={a.data.species}
+                  category={a.data.category}
+                  emergency={a.data.emergency}
+                  youtubeId={a.data.youtubeId}
+                />
+              ))}
+            </div>
+          </div>
+        ))
+      )}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .pillar-hero { background: linear-gradient(180deg, var(--teal-50), transparent); padding-top: clamp(20px, 3vw, 32px); padding-bottom: clamp(8px, 2vw, 20px); }
+  .pillar-hero-inner { display: flex; align-items: center; gap: 1.2rem; margin-top: 1rem; }
+  .pillar-emoji { font-size: clamp(3rem, 8vw, 4.5rem); }
+  .pillar-hero h1 { font-size: clamp(2rem, 5vw, 3rem); }
+  .cluster { margin-bottom: 3rem; }
+  .cluster-title { font-size: clamp(1.4rem, 3vw, 1.8rem); margin-bottom: 1.2rem; padding-bottom: .5rem; border-bottom: 2px solid var(--teal-100); }
+  .empty { color: var(--text-muted); font-size: 1.05rem; }
+</style>

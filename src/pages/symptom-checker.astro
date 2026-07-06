@@ -1,0 +1,104 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Callout from '../components/Callout.astro';
+
+/**
+ * A lightweight, static symptom guide. NOT a diagnostic tool — it points owners
+ * to the right vet-reviewed guide and flags emergencies. Great for engagement,
+ * dwell time and inbound links.
+ */
+const data = {
+  dogs: [
+    { symptom: 'Vomiting', emergency: false, slug: 'dog-vomiting-when-to-worry', note: 'Learn which vomiting is minor and which needs a vet.' },
+    { symptom: 'Retching with a swollen, hard belly', emergency: true, slug: 'gdv-bloat-in-dogs', note: 'Possible bloat (GDV) — a minutes-matter emergency.' },
+    { symptom: 'Pale gums, weakness, collapse', emergency: true, slug: 'imha-in-dogs', note: 'Could be IMHA or internal bleeding — go now.' },
+    { symptom: 'Head shaking / smelly, itchy ears', emergency: false, slug: 'dog-ear-infections', note: 'Likely an ear infection (otitis).' },
+    { symptom: 'Itching, licking, red or flaky skin', emergency: false, slug: 'dog-skin-allergies', note: 'Often allergic skin disease.' },
+    { symptom: 'Ate chocolate / something toxic', emergency: true, slug: 'chocolate-poisoning-in-dogs', note: 'Possible poisoning — call a vet immediately.' },
+  ],
+  cats: [
+    { symptom: 'Straining in the litter box / can’t urinate', emergency: true, slug: 'feline-urinary-blockage', note: 'A blocked cat is a life-threatening emergency.' },
+  ],
+  rabbits: [
+    { symptom: 'Stopped eating / no droppings', emergency: true, slug: 'rabbit-gi-stasis', note: 'GI stasis — always an emergency in rabbits.' },
+  ],
+};
+const species = [
+  { key: 'dogs', label: '🐕 Dog' },
+  { key: 'cats', label: '🐈 Cat' },
+  { key: 'rabbits', label: '🐇 Rabbit' },
+];
+---
+
+<BaseLayout
+  title="Pet Symptom Checker"
+  description="Not sure if your pet's symptom is serious? Pick your pet and symptom to find the right vet-reviewed guide and know whether it's an emergency."
+>
+  <section class="section">
+    <div class="container prose-container">
+      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Symptom Checker' }]} />
+      <span class="eyebrow">Tool</span>
+      <h1>Pet symptom checker</h1>
+      <p class="lede">Pick your pet, then the symptom you're seeing. We'll point you to the right guide and flag anything that can't wait.</p>
+
+      <Callout type="warning">
+        <p>This is an educational guide, not a diagnosis. If your pet seems very unwell or you're worried, contact your veterinarian.</p>
+      </Callout>
+
+      <div class="sc-species" role="group" aria-label="Choose your pet">
+        {species.map((s, i) => (
+          <button class:list={['sc-species-btn', { active: i === 0 }]} data-species={s.key}>{s.label}</button>
+        ))}
+      </div>
+
+      {species.map((s, i) => (
+        <div class="sc-panel" data-panel={s.key} hidden={i !== 0}>
+          <ul class="sc-list">
+            {data[s.key as keyof typeof data].map((item) => (
+              <li>
+                <a href={`/articles/${item.slug}`} class="sc-item">
+                  <span class="sc-symptom">
+                    {item.emergency && <span class="pill pill-emergency">🚨</span>}
+                    {item.symptom}
+                  </span>
+                  <span class="sc-note">{item.note}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+          {data[s.key as keyof typeof data].length < 3 && (
+            <p class="sc-more">More {s.label.split(' ')[1].toLowerCase()} guides are on the way — <a href="/articles">browse all articles</a>.</p>
+          )}
+        </div>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  h1 { font-size: clamp(2rem, 4.5vw, 2.9rem); margin: .5rem 0 .7rem; }
+  .sc-species { display: flex; flex-wrap: wrap; gap: .6rem; margin: 1.6rem 0 1.4rem; }
+  .sc-species-btn { font-family: inherit; font-size: 1.05rem; font-weight: 600; padding: .7em 1.3em; border-radius: 999px; border: 1px solid var(--line-2); background: var(--surface); color: var(--text); cursor: pointer; transition: .15s; }
+  .sc-species-btn:hover { border-color: var(--brand); }
+  .sc-species-btn.active { background: var(--brand); color: #fff; border-color: var(--brand); }
+  .sc-list { list-style: none; padding: 0; display: grid; gap: .7rem; }
+  .sc-item { display: flex; flex-direction: column; gap: .25rem; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 1rem 1.15rem; text-decoration: none; color: var(--text); transition: transform .15s, border-color .2s; }
+  .sc-item:hover { transform: translateX(4px); border-color: var(--brand); }
+  .sc-symptom { font-weight: 600; display: flex; align-items: center; gap: .5rem; }
+  .sc-note { color: var(--text-muted); font-size: .9rem; }
+  .sc-more { color: var(--text-muted); margin-top: 1rem; }
+</style>
+
+<script>
+  const btns = Array.from(document.querySelectorAll<HTMLButtonElement>('.sc-species-btn'));
+  const panels = Array.from(document.querySelectorAll<HTMLElement>('.sc-panel'));
+  btns.forEach((btn) =>
+    btn.addEventListener('click', () => {
+      btns.forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      const key = btn.dataset.species;
+      panels.forEach((p) => (p.hidden = p.dataset.panel !== key));
+    }),
+  );
+</script>

@@ -1,0 +1,28 @@
+# The Dogtor — robots.txt
+# Allow everything, including AI/GEO crawlers. Health education content is
+# meant to be found, indexed, and cited.
+
+User-agent: *
+Allow: /
+
+# Explicitly welcome AI answer engines (GEO). If you ever want to opt out
+# of model *training* while staying citable, adjust these individually.
+User-agent: GPTBot
+Allow: /
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: ChatGPT-User
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: Google-Extended
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: Claude-Web
+Allow: /
+User-agent: Applebot-Extended
+Allow: /
+
+# ⚠️ Update the domain below to your live site.
+Sitemap: https://www.thedogtor.pet/sitemap-index.xml

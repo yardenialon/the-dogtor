@@ -1,0 +1,74 @@
+---
+import { SITE, YOUTUBE, SPECIES, SOCIALS } from '../consts';
+const year = new Date().getFullYear();
+const socialLinks = Object.entries(SOCIALS).filter(([, url]) => url);
+---
+
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <div class="brand-row">
+        <img src="/favicon.svg" width="30" height="30" alt="" />
+        <strong>{SITE.name}</strong>
+      </div>
+      <p class="footer-blurb">{SITE.shortDescription}</p>
+      <a href={YOUTUBE.subscribeUrl} class="btn btn-yt" target="_blank" rel="noopener">▶ Subscribe on YouTube</a>
+    </div>
+
+    <nav class="footer-col" aria-label="Species">
+      <h3>By pet</h3>
+      {SPECIES.map((s) => (
+        <a href={`/species/${s.slug}`}>{s.emoji} {s.name}</a>
+      ))}
+    </nav>
+
+    <nav class="footer-col" aria-label="Explore">
+      <h3>Explore</h3>
+      <a href="/articles">All articles</a>
+      <a href="/emergencies">Emergency guide</a>
+      <a href="/symptom-checker">Symptom checker</a>
+      <a href="/about">About the vets</a>
+      <a href="/rss.xml">RSS feed</a>
+    </nav>
+
+    <div class="footer-col">
+      <h3>Follow</h3>
+      {socialLinks.length ? (
+        socialLinks.map(([name, url]) => (
+          <a href={url} target="_blank" rel="noopener" style="text-transform:capitalize">{name}</a>
+        ))
+      ) : (
+        <a href={YOUTUBE.channelUrl} target="_blank" rel="noopener">YouTube</a>
+      )}
+    </div>
+  </div>
+
+  <div class="container footer-bottom">
+    <p class="disclaimer">
+      <strong>Not a substitute for veterinary care.</strong> The Dogtor is educational.
+      Always consult a licensed veterinarian about your pet's health. In an emergency,
+      contact your vet or nearest animal hospital immediately.
+    </p>
+    <p class="copyright">© {year} {SITE.name}. All rights reserved.</p>
+  </div>
+</footer>
+
+<style>
+  .site-footer { background: var(--surface); border-top: 1px solid var(--line); margin-top: 64px; }
+  .footer-grid {
+    display: grid; gap: clamp(24px, 4vw, 48px);
+    grid-template-columns: 1.6fr 1fr 1fr 1fr;
+    padding-block: clamp(40px, 6vw, 64px);
+  }
+  @media (max-width: 780px) { .footer-grid { grid-template-columns: 1fr 1fr; } .footer-brand { grid-column: 1 / -1; } }
+  @media (max-width: 480px) { .footer-grid { grid-template-columns: 1fr; } }
+  .brand-row { display: flex; align-items: center; gap: .5rem; font-family: var(--font-display); font-size: 1.15rem; }
+  .footer-blurb { color: var(--text-muted); font-size: .92rem; margin: .8rem 0 1.1rem; max-width: 44ch; }
+  .footer-col h3 { font-family: var(--font-body); font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: .9rem; }
+  .footer-col a { display: block; color: var(--ink-soft); text-decoration: none; padding: .28em 0; font-size: .95rem; }
+  .footer-col a:hover { color: var(--brand-strong); }
+  .footer-bottom { border-top: 1px solid var(--line); padding-block: 24px; display: flex; flex-wrap: wrap; gap: .6rem 2rem; align-items: baseline; justify-content: space-between; }
+  .disclaimer { font-size: .82rem; color: var(--text-muted); max-width: 62ch; }
+  .disclaimer strong { color: var(--text); }
+  .copyright { font-size: .82rem; color: var(--text-muted); }
+</style>

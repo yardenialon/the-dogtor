@@ -1,0 +1,105 @@
+---
+import { SITE, SITE_URL } from '../consts';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Absolute or root-relative image for social cards. */
+  image?: string;
+  /** 'website' | 'article' */
+  type?: 'website' | 'article';
+  /** Extra JSON-LD objects to inject (schema.org). */
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  noindex?: boolean;
+  /** Override the <title>; otherwise `${title} · The Dogtor`. */
+  fullTitle?: string;
+}
+
+const {
+  title,
+  description = SITE.shortDescription,
+  image = SITE.ogImage,
+  type = 'website',
+  jsonLd,
+  noindex = false,
+  fullTitle,
+} = Astro.props;
+
+const pageTitle = fullTitle ?? `${title} · ${SITE.name}`;
+const canonical = new URL(Astro.url.pathname, SITE_URL).href.replace(/\/$/, '') || SITE_URL;
+const ogImage = new URL(image, SITE_URL).href;
+
+// Baseline Organization schema is present site-wide (helps GEO + knowledge graph).
+const orgSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: SITE.name,
+  url: SITE_URL,
+  logo: new URL('/favicon.svg', SITE_URL).href,
+  description: SITE.shortDescription,
+  sameAs: ['https://www.youtube.com/channel/UC0Kr23avnoMMAtmZTCKcykA'],
+};
+
+const schemas = [orgSchema, ...(Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [])];
+---
+
+<!doctype html>
+<html lang={SITE.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <meta name="theme-color" content={SITE.themeColor} />
+
+    <!-- Open Graph -->
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:type" content={type} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <!-- Icons -->
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+
+    <!-- Feed -->
+    <link rel="alternate" type="application/rss+xml" title={`${SITE.name} — Articles`} href="/rss.xml" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Structured data -->
+    {schemas.map((s) => (
+      <script type="application/ld+json" set:html={JSON.stringify(s)} />
+    ))}
+  </head>
+  <body>
+    <a href="#main" class="skip-link">Skip to content</a>
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

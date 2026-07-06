@@ -1,0 +1,54 @@
+---
+import { SPECIES } from '../consts';
+
+interface Props {
+  slug: string;
+  title: string;
+  summary: string;
+  species: string;
+  category: string;
+  emergency?: boolean;
+  youtubeId?: string;
+}
+const { slug, title, summary, species, category, emergency, youtubeId } = Astro.props;
+const sp = SPECIES.find((s) => s.slug === species);
+---
+
+<a href={`/articles/${slug}`} class="card card-link article-card">
+  <div class="article-card-media">
+    {youtubeId ? (
+      <img
+        src={`https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg`}
+        alt=""
+        loading="lazy"
+        width="480"
+        height="360"
+      />
+    ) : (
+      <div class="article-card-fallback" aria-hidden="true">{sp?.emoji ?? '🐾'}</div>
+    )}
+    {youtubeId && <span class="article-card-badge" aria-hidden="true">▶</span>}
+  </div>
+  <div class="article-card-body">
+    <div class="article-card-tags">
+      {emergency && <span class="pill pill-emergency">🚨 Emergency</span>}
+      <span class="pill pill-muted">{sp?.emoji} {sp?.name ?? species}</span>
+      <span class="pill">{category}</span>
+    </div>
+    <h3 class="article-card-title">{title}</h3>
+    <p class="article-card-summary">{summary}</p>
+  </div>
+</a>
+
+<style>
+  .article-card { display: flex; flex-direction: column; overflow: hidden; text-decoration: none; color: inherit; height: 100%; }
+  .article-card-media { position: relative; aspect-ratio: 16 / 9; background: var(--surface-3); overflow: hidden; }
+  .article-card-media img { width: 100%; height: 100%; object-fit: cover; transition: transform .3s; }
+  .article-card:hover .article-card-media img { transform: scale(1.05); }
+  .article-card-fallback { width: 100%; height: 100%; display: grid; place-items: center; font-size: 3rem; }
+  .article-card-badge { position: absolute; bottom: 10px; right: 10px; background: rgba(255,0,51,.92); color: #fff; width: 34px; height: 34px; border-radius: 999px; display: grid; place-items: center; font-size: .8rem; box-shadow: 0 2px 8px rgba(0,0,0,.35); }
+  .article-card-body { padding: 1.05rem 1.15rem 1.25rem; display: flex; flex-direction: column; gap: .55rem; }
+  .article-card-tags { display: flex; flex-wrap: wrap; gap: .35rem; }
+  .article-card-title { font-size: 1.15rem; line-height: 1.25; }
+  .article-card-summary { color: var(--text-muted); font-size: .92rem; line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+</style>

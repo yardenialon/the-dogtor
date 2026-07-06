@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="The Dogtor — Veterinary Education">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a7368"/>
+      <stop offset="1" stop-color="#0e9f8e"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="1010" cy="120" r="240" fill="#17b8a4" opacity="0.35"/>
+  <circle cx="140" cy="560" r="200" fill="#063b36" opacity="0.35"/>
+  <g transform="translate(96,150)" fill="#ffffff" font-family="Georgia, serif">
+    <text font-size="34" letter-spacing="6" fill="#d7f3ee" font-family="Arial, sans-serif" font-weight="700">VETERINARY EDUCATION</text>
+    <text y="120" font-size="118" font-weight="700">The Dogtor</text>
+    <text y="210" font-size="40" fill="#eefaf8" font-family="Arial, sans-serif" font-weight="400">Pet health, explained by real veterinarians.</text>
+    <text y="270" font-size="40" fill="#eefaf8" font-family="Arial, sans-serif" font-weight="400">Warning signs · Emergencies · Treatments</text>
+  </g>
+  <g transform="translate(96,470)">
+    <rect x="0" y="0" width="270" height="66" rx="33" fill="#ff8a4c"/>
+    <text x="135" y="43" font-size="28" fill="#3a1704" font-family="Arial, sans-serif" font-weight="700" text-anchor="middle">▶  Watch on YouTube</text>
+  </g>
+</svg>

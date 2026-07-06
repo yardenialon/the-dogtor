@@ -1,0 +1,116 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { SPECIES } from '../../consts';
+
+const articles = (await getCollection('articles', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.publishedDate.valueOf() - a.data.publishedDate.valueOf(),
+);
+
+// Unique categories for the filter chips.
+const categories = [...new Set(articles.map((a) => a.data.category))].sort();
+---
+
+<BaseLayout
+  title="All Articles"
+  description="Every vet-reviewed guide from The Dogtor — browse pet health articles by species, topic and emergency status."
+>
+  <section class="section">
+    <div class="container">
+      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Articles' }]} />
+      <header class="page-head">
+        <span class="eyebrow">Library</span>
+        <h1>Pet health guides</h1>
+        <p class="lede">Search-and-scroll our full library. Every article is written and reviewed by certified veterinarians.</p>
+      </header>
+
+      <!-- Client-side filter (no framework needed) -->
+      <div class="filters" role="group" aria-label="Filter articles">
+        <input type="search" id="article-search" class="filter-search" placeholder="Search e.g. vomiting, GDV, ear infection…" aria-label="Search articles" />
+        <div class="filter-chips" id="species-filter">
+          <button class="chip active" data-filter="species" data-value="all">All pets</button>
+          {SPECIES.map((s) => (
+            <button class="chip" data-filter="species" data-value={s.slug}>{s.emoji} {s.name}</button>
+          ))}
+        </div>
+      </div>
+
+      <p class="result-count" id="result-count" aria-live="polite"></p>
+
+      <div class="grid grid-3" id="article-grid">
+        {articles.map((a) => (
+          <div
+            class="article-item"
+            data-species={a.data.species}
+            data-category={a.data.category.toLowerCase()}
+            data-search={`${a.data.title} ${a.data.summary} ${a.data.keywords.join(' ')} ${a.data.category}`.toLowerCase()}
+          >
+            <ArticleCard
+              slug={a.id}
+              title={a.data.title}
+              summary={a.data.summary}
+              species={a.data.species}
+              category={a.data.category}
+              emergency={a.data.emergency}
+              youtubeId={a.data.youtubeId}
+            />
+          </div>
+        ))}
+      </div>
+      <p class="no-results" id="no-results" hidden>No guides match that yet. Try a different term.</p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-head { margin-bottom: 1.8rem; max-width: 60ch; }
+  .page-head h1 { font-size: clamp(2rem, 4.5vw, 2.9rem); margin: .5rem 0 .7rem; }
+  .filters { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.4rem; }
+  .filter-search { width: 100%; max-width: 480px; padding: .8em 1.1em; border-radius: 999px; border: 1px solid var(--line-2); background: var(--surface); color: var(--text); font-size: 1rem; font-family: inherit; }
+  .filter-search:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px var(--teal-50); }
+  .filter-chips { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .chip { border: 1px solid var(--line-2); background: var(--surface); color: var(--ink-soft); padding: .5em 1em; border-radius: 999px; cursor: pointer; font-family: inherit; font-size: .9rem; font-weight: 550; transition: .15s; }
+  .chip:hover { border-color: var(--brand); }
+  .chip.active { background: var(--brand); color: #fff; border-color: var(--brand); }
+  .result-count { color: var(--text-muted); font-size: .88rem; margin-bottom: 1.2rem; }
+  .article-item.hidden { display: none; }
+  .no-results { color: var(--text-muted); padding: 2rem 0; }
+</style>
+
+<script>
+  const grid = document.getElementById('article-grid');
+  const items = Array.from(document.querySelectorAll<HTMLElement>('.article-item'));
+  const search = document.getElementById('article-search') as HTMLInputElement | null;
+  const count = document.getElementById('result-count');
+  const noResults = document.getElementById('no-results');
+  const chips = Array.from(document.querySelectorAll<HTMLButtonElement>('.chip'));
+  let activeSpecies = 'all';
+
+  function apply() {
+    const q = (search?.value ?? '').trim().toLowerCase();
+    let visible = 0;
+    items.forEach((el) => {
+      const matchSpecies = activeSpecies === 'all' || el.dataset.species === activeSpecies;
+      const matchSearch = !q || (el.dataset.search ?? '').includes(q);
+      const show = matchSpecies && matchSearch;
+      el.classList.toggle('hidden', !show);
+      if (show) visible++;
+    });
+    if (count) count.textContent = `${visible} guide${visible === 1 ? '' : 's'}`;
+    if (noResults) noResults.hidden = visible !== 0;
+    if (grid) grid.hidden = visible === 0;
+  }
+
+  chips.forEach((chip) =>
+    chip.addEventListener('click', () => {
+      chips.forEach((c) => c.classList.remove('active'));
+      chip.classList.add('active');
+      activeSpecies = chip.dataset.value ?? 'all';
+      apply();
+    }),
+  );
+  search?.addEventListener('input', apply);
+  apply();
+</script>

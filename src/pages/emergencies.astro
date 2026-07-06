@@ -1,0 +1,98 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Callout from '../components/Callout.astro';
+
+const emergencies = (
+  await getCollection('articles', ({ data }) => !data.draft && data.emergency)
+).sort((a, b) => b.data.publishedDate.valueOf() - a.data.publishedDate.valueOf());
+
+// Universal red-flag signs — high-intent, highly citable content.
+const redFlags = [
+  { sign: 'Trouble breathing', detail: 'Open-mouth breathing (cats), gasping, blue/grey gums, or an inability to settle.' },
+  { sign: 'Unproductive retching + swollen belly', detail: 'A classic sign of bloat (GDV) in dogs — a true minutes-matter emergency.' },
+  { sign: "Can't urinate / straining", detail: 'Especially male cats — a urinary blockage is fatal within 24–48 hours.' },
+  { sign: 'Collapse or sudden weakness', detail: 'Pale gums, wobbling, or fainting can signal internal bleeding or IMHA.' },
+  { sign: 'Suspected poisoning', detail: 'Chocolate, grapes/raisins, xylitol, rodenticide, antifreeze, human meds, lilies (cats).' },
+  { sign: 'Seizure or unresponsiveness', detail: 'A seizure over 3–5 minutes, or clusters of seizures, needs emergency care.' },
+  { sign: 'Bloated, hard, painful abdomen', detail: 'With restlessness or crying — do not wait.' },
+  { sign: 'Repeated vomiting/diarrhoea', detail: 'Especially with blood, lethargy, or if a puppy/kitten — dehydration comes fast.' },
+];
+---
+
+<BaseLayout
+  title="Pet Emergency Guide"
+  description="How to recognise a pet emergency: the red-flag signs in dogs and cats that mean you should contact a vet immediately, plus vet-reviewed guides to bloat, poisoning, IMHA and more."
+>
+  <section class="emerg-hero">
+    <div class="container">
+      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Emergencies' }]} />
+      <span class="pill pill-emergency">🚨 Emergency guide</span>
+      <h1>Is this a pet emergency?</h1>
+      <p class="lede">
+        Some conditions kill within hours. Use this guide to recognise the red flags — and when in doubt,
+        <strong> always call your vet or nearest emergency animal hospital.</strong>
+      </p>
+    </div>
+  </section>
+
+  <section class="section-sm">
+    <div class="container prose-container">
+      <Callout type="emergency" title="If you're facing this right now">
+        <p>
+          Call your veterinarian or the nearest 24-hour animal hospital <strong>immediately</strong>.
+          If you can, phone ahead so they're ready for you. Keep the packaging of any suspected poison.
+          This site is educational and cannot replace hands-on care.
+        </p>
+      </Callout>
+    </div>
+  </section>
+
+  <section class="section-sm">
+    <div class="container">
+      <h2 class="block-title">Red flags — go to the vet now</h2>
+      <div class="redflag-grid">
+        {redFlags.map((r) => (
+          <div class="redflag card">
+            <h3>{r.sign}</h3>
+            <p>{r.detail}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {emergencies.length > 0 && (
+    <section class="section">
+      <div class="container">
+        <h2 class="block-title">Emergency conditions explained</h2>
+        <div class="grid grid-3">
+          {emergencies.map((a) => (
+            <ArticleCard
+              slug={a.id}
+              title={a.data.title}
+              summary={a.data.summary}
+              species={a.data.species}
+              category={a.data.category}
+              emergency={a.data.emergency}
+              youtubeId={a.data.youtubeId}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+</BaseLayout>
+
+<style>
+  .emerg-hero { background: linear-gradient(180deg, var(--red-100), transparent); padding: clamp(20px,3vw,32px) 0 clamp(20px,4vw,40px); }
+  .emerg-hero h1 { font-size: clamp(2rem, 5vw, 3rem); margin: 1rem 0 .8rem; }
+  .emerg-hero .pill { margin-top: 1rem; }
+  .block-title { font-size: clamp(1.5rem, 3.5vw, 2rem); margin-bottom: 1.4rem; }
+  .redflag-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+  .redflag { padding: 1.15rem 1.25rem; border-left: 4px solid var(--red-600); }
+  .redflag h3 { font-size: 1.08rem; color: var(--red-600); margin-bottom: .4rem; }
+  .redflag p { color: var(--ink-soft); font-size: .93rem; margin: 0; }
+</style>
