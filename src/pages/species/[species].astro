@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArticleCard from '../../components/ArticleCard.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import SpeciesIcon from '../../components/SpeciesIcon.astro';
 import { SPECIES, SITE_URL, YOUTUBE } from '../../consts';
 
 export async function getStaticPaths() {
@@ -56,7 +57,7 @@ const breadcrumbSchema = {
     <div class="container">
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: species.name }]} />
       <div class="pillar-hero-inner">
-        <span class="pillar-emoji" aria-hidden="true">{species.emoji}</span>
+        <SpeciesIcon species={species.slug} size={92} chip class="pillar-icon" />
         <div>
           <h1>{species.name} health</h1>
           <p class="lede">{species.blurb}</p>
@@ -99,7 +100,7 @@ const breadcrumbSchema = {
 <style>
   .pillar-hero { background: linear-gradient(180deg, var(--teal-50), transparent); padding-top: clamp(20px, 3vw, 32px); padding-bottom: clamp(8px, 2vw, 20px); }
   .pillar-hero-inner { display: flex; align-items: center; gap: 1.2rem; margin-top: 1rem; }
-  .pillar-emoji { font-size: clamp(3rem, 8vw, 4.5rem); }
+  .pillar-icon { flex: none; }
   .pillar-hero h1 { font-size: clamp(2rem, 5vw, 3rem); }
   .cluster { margin-bottom: 3rem; }
   .cluster-title { font-size: clamp(1.4rem, 3vw, 1.8rem); margin-bottom: 1.2rem; padding-bottom: .5rem; border-bottom: 2px solid var(--teal-100); }

@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArticleCard from '../../components/ArticleCard.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import SpeciesIcon from '../../components/SpeciesIcon.astro';
 import { SPECIES } from '../../consts';
 
 const articles = (await getCollection('articles', ({ data }) => !data.draft)).sort(
@@ -32,7 +33,7 @@ const categories = [...new Set(articles.map((a) => a.data.category))].sort();
         <div class="filter-chips" id="species-filter">
           <button class="chip active" data-filter="species" data-value="all">All pets</button>
           {SPECIES.map((s) => (
-            <button class="chip" data-filter="species" data-value={s.slug}>{s.emoji} {s.name}</button>
+            <button class="chip" data-filter="species" data-value={s.slug}><SpeciesIcon species={s.slug} size={18} /> {s.name}</button>
           ))}
         </div>
       </div>
@@ -71,7 +72,7 @@ const categories = [...new Set(articles.map((a) => a.data.category))].sort();
   .filter-search { width: 100%; max-width: 480px; padding: .8em 1.1em; border-radius: 999px; border: 1px solid var(--line-2); background: var(--surface); color: var(--text); font-size: 1rem; font-family: inherit; }
   .filter-search:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px var(--teal-50); }
   .filter-chips { display: flex; flex-wrap: wrap; gap: .5rem; }
-  .chip { border: 1px solid var(--line-2); background: var(--surface); color: var(--ink-soft); padding: .5em 1em; border-radius: 999px; cursor: pointer; font-family: inherit; font-size: .9rem; font-weight: 550; transition: .15s; }
+  .chip { display: inline-flex; align-items: center; gap: .35em; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink-soft); padding: .45em .95em; border-radius: 999px; cursor: pointer; font-family: inherit; font-size: .9rem; font-weight: 550; transition: .15s; }
   .chip:hover { border-color: var(--brand); }
   .chip.active { background: var(--brand); color: #fff; border-color: var(--brand); }
   .result-count { color: var(--text-muted); font-size: .88rem; margin-bottom: 1.2rem; }

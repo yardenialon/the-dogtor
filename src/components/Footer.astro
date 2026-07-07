@@ -1,5 +1,6 @@
 ---
 import { SITE, YOUTUBE, SPECIES, SOCIALS } from '../consts';
+import SpeciesIcon from './SpeciesIcon.astro';
 const year = new Date().getFullYear();
 const socialLinks = Object.entries(SOCIALS).filter(([, url]) => url);
 ---
@@ -18,7 +19,7 @@ const socialLinks = Object.entries(SOCIALS).filter(([, url]) => url);
     <nav class="footer-col" aria-label="Species">
       <h3>By pet</h3>
       {SPECIES.map((s) => (
-        <a href={`/species/${s.slug}`}>{s.emoji} {s.name}</a>
+        <a href={`/species/${s.slug}`} class="footer-species"><SpeciesIcon species={s.slug} size={20} /> {s.name}</a>
       ))}
     </nav>
 
@@ -67,6 +68,7 @@ const socialLinks = Object.entries(SOCIALS).filter(([, url]) => url);
   .footer-col h3 { font-family: var(--font-body); font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: .9rem; }
   .footer-col a { display: block; color: var(--ink-soft); text-decoration: none; padding: .28em 0; font-size: .95rem; }
   .footer-col a:hover { color: var(--brand-strong); }
+  .footer-species { display: inline-flex; align-items: center; gap: .5rem; }
   .footer-bottom { border-top: 1px solid var(--line); padding-block: 24px; display: flex; flex-wrap: wrap; gap: .6rem 2rem; align-items: baseline; justify-content: space-between; }
   .disclaimer { font-size: .82rem; color: var(--text-muted); max-width: 62ch; }
   .disclaimer strong { color: var(--text); }
